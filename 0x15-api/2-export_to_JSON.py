@@ -1,27 +1,29 @@
 #!/usr/bin/python3
-# Using what you did in the task #0, extend your Python
-# script to export data in the JSON format.
+"""Accessing a REST API for todo lists of employees"""
 
 import json
 import requests
 import sys
 
 
-if __name__ == "__main__":
-    USER_ID = sys.argv[1]
-    jsonplaceholder = 'https://jsonplaceholder.typicode.com/users'
-    url = jsonplaceholder + '/' + USER_ID
+if __name__ == '__main__':
+    employeeId = sys.argv[1]
+    baseUrl = "https://jsonplaceholder.typicode.com/users"
+    url = baseUrl + "/" + employeeId
+
     response = requests.get(url)
     username = response.json().get('username')
-    todo_url = url + '/todos'
-    response = requests.get(todo_url)
+
+    todoUrl = url + "/todos"
+    response = requests.get(todoUrl)
     tasks = response.json()
-    dict = {USER_ID: []}
+
+    dictionary = {employeeId: []}
     for task in tasks:
-        dict[USER_ID].append({
-            "task": task.get("title"),
-            "completed": task.get("completed"),
+        dictionary[employeeId].append({
+            "task": task.get('title'),
+            "completed": task.get('completed'),
             "username": username
         })
-        with open('{}.json'.format(USER_ID), 'w') as f:
-            json.dump(dict, f)
+    with open('{}.json'.format(employeeId), 'w') as filename:
+        json.dump(dictionary, filename)

@@ -1,37 +1,31 @@
 #!/usr/bin/python3
-# Write a Python script that, using this REST API, for a given
-# employee ID, returns information about his/her Todo list progress.
+"""Accessing a REST API for todo lists of employees"""
 
 import requests
 import sys
 
 
-if __name__ == "__main__":
-    # Check if the script is provided with an employee ID as a command-line argument
-    if len(sys.argv) != 2:
-        sys.exit(1)
+if __name__ == '__main__':
+    employeeId = sys.argv[1]
+    baseUrl = "https://jsonplaceholder.typicode.com/users"
+    url = baseUrl + "/" + employeeId
 
-    employee_ID = sys.argv[1]
-    jsonplaceholder = 'https://jsonplaceholder.typicode.com/users'
-    url = f'{jsonplaceholder}/{employee_ID}'
-
-    # Make a GET request to the API
     response = requests.get(url)
+    employeeName = response.json().get('name')
 
-    # Check if the request was successful (status code 200)
-    if response.status_code == 200:
-        employee_name = response.json().get('name')
-        Todourl = f'{url}/todos'
-        res = requests.get(Todourl)
-        tasks = res.json()
+    todoUrl = url + "/todos"
+    response = requests.get(todoUrl)
+    tasks = response.json()
+    done = 0
+    done_tasks = []
 
-        # Filter completed tasks
-        done_tasks = [task for task in tasks if task.get('completed')]
+    for task in tasks:
+        if task.get('completed'):
+            done_tasks.append(task)
+            done += 1
 
-        # Display the employee TODO list progress
-        print("Employee {} is done with tasks({}/{}):".format(employee_name, len(done_tasks), len(tasks)))
-        for task in done_tasks:
-            print("\t{}".format(task.get('title')))
-    else:
-        # Display an error message if the request was not successful
-        print(f"Error: Unable to fetch data. Status code: {response.status_code}")
+    print("Employee {} is done with tasks({}/{}):"
+          .format(employeeName, done, len(tasks)))
+
+    for task in done_tasks:
+        print("\t {}".format(task.get('title')))
